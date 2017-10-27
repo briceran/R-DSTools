@@ -1,0 +1,81 @@
+---
+title: "Data Cleaning"
+output: html_notebook
+---
+
+Bug-Frequency dataset cleaning.
+An example of shaping data from a wide into a long format.
+
+```{r,echo=FALSE}
+library(tidyr)
+library(dplyr)
+bugs <- read.csv('Bug-Frequency.csv',sep=';')
+#View(bugs)
+
+
+```
+
+
+```{r}
+names(bugs) <- c("Region","<10 g","10-20 g","20-30 g","30-40 g",">40 g")
+head(bugs)
+
+```
+
+Convert to long form using gather() method.
+
+```{r}
+
+gather(data = bugs, key = weight, value = counts, -Region)
+```
+
+
+```{r}
+bugs.table = tbl_df(gather(data = bugs, key = weight, value = counts, -Region))
+head(bugs.table)
+arrange(bugs.table, Region)
+```
+
+
+Splitting a column.
+
+```{r}
+ageSex <- data.frame(name=c("Paul","Kim","Nora","Sue","Paul","Kim"), 
+                     biometrics=c("179m","173f","174f","159f","188m","163f"),
+                     measurement=rnorm(6))
+ageSex
+```
+
+Use seperate()
+ function.  Split from position 3 (or -1)
+```{r}
+separate(data=ageSex, col=biometrics, into=c("height","sex"),3) 
+```
+
+
+Converting long to wide data.
+Notice that one column has two rows.  ie. Paul has a low row and a high row
+```{r}
+sports<- data.frame(name=c("Paul","Paul","Nora","Nora","Kim","Kim"),
+                    performance=c("top","low","top","low","top","low"),
+                    counts=c(11,3,18,2,9,1))
+sports
+
+
+```
+```{r}
+spread(data=sports,key=performance, value = counts)
+
+```
+
+Using data table
+
+
+```{r,echo=FALSE}
+library(data.table)
+```
+
+
+
+
+
