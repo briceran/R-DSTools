@@ -18,3 +18,4 @@ time2 = ymd_hm("1995-05-23 15:23", tz = "US/Pacific" )
 myinterval = interval(time1, time2)
 myinterval
 class(myinterval)
+## Example clicks to website
