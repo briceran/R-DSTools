@@ -1,0 +1,13 @@
+name: beervisualization
+title: BeerVisualization
+username:
+account: bricerandolph
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 235934
+bundleId: 1077987
+url: https://bricerandolph.shinyapps.io/beervisualization/
+when: 1510798970.59636
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: beers.csv|beersvis.R|binary.csv|Bug-Frequency.csv|datacleaning.nb.html|datacleaning.Rmd|DataImport.R|digits.csv|fractionalfactorialdesign.R|iris.csv|kmeans.R|NeuralNetdigits.R|PCA.R|PCRregression.R|README.md|RestructuringData.R|timeandDatesLubridate.R|TimeSeries.R

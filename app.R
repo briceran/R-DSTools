@@ -1,12 +1,9 @@
-library(rsconnect)
 library(shiny)
 library(shinythemes)
 library(ggplot2)
 library(DT)
 library(dplyr)
 library(rgl)
-library(car)
-
 ##### data cleaning/assembly 
 # note: SRM chosen to measure color these measurements vary based on source
 # note: IBU can also vary based on source (since these measurements were constructed
@@ -15,7 +12,6 @@ library(car)
 #         -   data description   -   
 #
 # Beer Name, Calories, ABV, COLOR-SRM, IBU
-
 
 bluemoon<-c("Blue Moon Belgian White", 164, .0536, 13, 4.5)
 budlight<-c("Bud Light", 110, .042, 3, 18)
@@ -45,84 +41,46 @@ beerdf$IBU<-as.numeric(beerdf$IBU)
 beertbl<- tbl_df(beerdf)
 beerdf
 
-####################################################################
-# to host on shinyapps.io
-# don't forget to comment out when pushing to GITHUB
-
-rsconnect::setAccountInfo(name='bricerandolph',
-                          token='0CCE331EE68481FA3E74483C7BB3D835',
-                          secret='rKyHok/CJsJ5vKxZUbQTUTWolDYqDtibWCIAZuq7')
-
-
 # shiny app
 
 server = function(input, output, session) {
   library(ggplot2)
   library(DT)
   library(shiny)
-  library(rgl)
-  
-  
+
   output$plot<- renderPlot({
     ggplot(beerdf, aes(Calories, ABV)) + geom_point()
   })
   
-  #3d plot
-  #output$plot <- renderRglwidget({
-  #    open3d()
-  #    plot3d(x = beerdf$ABV, y = beerdf$Color_SRM, z = beerdf$IBU)
-  #    rglwidget()
-  #})
-  
   beer<- reactive({
     user_click<- input$user_click
-    sel<- nearPoints(beerdf,user_click,threshold = 10,maxpoints = 5)
+    sel<- nearPoints(beerdf,user_click,threshold = 100,maxpoints = 1)
     return(sel)
   })
-  output$table<- DT::renderDataTable(DT::datatable(beer()))
-  output$table<- DT::renderDataTable(beertbl[1:15,],
-                                        options = list(paging=F),
-                                        rownames=F,
-                                        filter="top")
-
+  
+  output$tableDT<- DT::renderDataTable(DT::datatable(beer()))
+  output$tableDTog<- DT::renderDataTable(beerdf,options = list(paging=F), rownames=F, filter = "top")
+  
+  output$mydownload <- downloadHandler(
+    filename = "beers.csv",
+    content = function(file){
+      write.csv(beerdf,file)})
 }
 
 ui <-   fluidPage(
   theme=shinytheme("cosmo"),
   titlePanel(strong("Visualizing common beers")),
   h1("Brice Randolph"),
+  p("The goal of this visualization is to see if there are any combinations of 
+    bitterness, alcohol content, and color that are not commonly observed.  In other words, can we 
+    use this information to find new types of beer?"),
+  h3("Click on a point to select a specific beer"),
   plotOutput("plot", click="user_click"),
-  DT::dataTableOutput("table"),
-  rglwidgetOutput("rglplot", width = "512px", height = "512px"),
-  
-  sidebarLayout(
-    
-    sidebarPanel(
-      withTags(
-        div(
-          b("Plot code"),
-          br(),
-          hr(),
-          code("ggplot(beerdf, aes(Calories, ABV)) + geom_point()")
-        ))),
-    
-    mainPanel(
-      tabsetPanel(
-        
-      )
-    ))
+  DT::dataTableOutput("tableDT"),
+  h1("The entire data set can be seen below:"),
+  DT::dataTableOutput("tableDTog"),
+  downloadButton(outputId = "mydownload", label = "Download Table")
 )
+
 shinyApp(ui = ui, server = server)
 
-
-
-######################################################################
-# try using openGL based package to 3d plot data
-install.packages("rgl")
-library(rgl)
-file.show(system.file("NEWS", package = "rgl"))
-example(surface3d)
-example(plot3d)
-open3d()
-plot3d(beerdf$ABV,beerdf$Color_SRM,beerdf$IBU,col = rainbow(15))
-# result: hard to see what's going on. cannot interact with points
